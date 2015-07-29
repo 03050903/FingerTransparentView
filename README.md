@@ -4,8 +4,6 @@ FingerTransparentView
 
 (原来叫 FingerPNG)
 
-Demo apk: https://github.com/drakeet/FingerTransparentView/raw/master/library-demo.apk
-
 ```xml
 <me.drakeet.fingertransparentview.FingerTransparentView
     android:layout_width="match_parent"
@@ -15,3 +13,5 @@ Demo apk: https://github.com/drakeet/FingerTransparentView/raw/master/library-de
 <!--default: drakeet:transparent_radius="82dp"/>-->
 
 ```
+
+Demo apk: https://github.com/drakeet/FingerTransparentView/raw/master/library-demo.apk
