@@ -67,7 +67,7 @@ public class FingerTransparentView extends View {
 
     private void initFingerLayer() {
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.finger);
-        mFingerLayer = scale(bitmap, mFingerRadius * 1.0f / PNG_RADIUS);
+        mFingerLayer = scaleBitmap(bitmap, mFingerRadius * 1.0f / PNG_RADIUS);
     }
 
     private void initBaseLayer() {
@@ -127,10 +127,10 @@ public class FingerTransparentView extends View {
         init();
     }
 
-    private static Bitmap scale(Bitmap bitmap, float s) {
+    private Bitmap scaleBitmap(Bitmap bitmap, float s) {
         Matrix matrix = new Matrix();
         matrix.postScale(s, s);
-        Bitmap resizeBmp = Bitmap.createBitmap(
+        return Bitmap.createBitmap(
                 bitmap,
                 0,
                 0,
@@ -139,6 +139,5 @@ public class FingerTransparentView extends View {
                 matrix,
                 true
         );
-        return resizeBmp;
     }
 }
