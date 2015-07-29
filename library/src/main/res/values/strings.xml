@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">FingerTransparentView</string>
 
-    <string name="action_settings">Settings</string>
+    <string name="action_about">by drakeet</string>
 </resources>
