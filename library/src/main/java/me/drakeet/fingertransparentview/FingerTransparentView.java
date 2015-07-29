@@ -1,10 +1,12 @@
 package me.drakeet.fingertransparentview;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
@@ -18,12 +20,14 @@ import android.view.View;
  */
 public class FingerTransparentView extends View {
 
+    private static final int PNG_RADIUS = 164;
     private Bitmap mBaseLayer, mFingerLayer;
     private Paint mBasePaint, mTouchPaint;
     private int mBaseColor;
     private int mWidth;
     private int mHeight;
     private Rect mRect, mTouchRect;
+    private int mFingerRadius;
 
     public FingerTransparentView(Context context) {
         super(context);
@@ -31,6 +35,16 @@ public class FingerTransparentView extends View {
 
     public FingerTransparentView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.FingerTransparentView);
+
+        try {
+            mFingerRadius = a.getDimensionPixelSize(
+                    R.styleable.FingerTransparentView_transparent_radius,
+                    getResources().getDimensionPixelSize(R.dimen.finger_transparent_radius_default)
+            );
+        } finally {
+            a.recycle();
+        }
     }
 
     private void init() {
@@ -52,7 +66,8 @@ public class FingerTransparentView extends View {
     }
 
     private void initFingerLayer() {
-        mFingerLayer = BitmapFactory.decodeResource(getResources(), R.mipmap.finger);
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.finger);
+        mFingerLayer = scale(bitmap, mFingerRadius * 1.0f / PNG_RADIUS);
     }
 
     private void initBaseLayer() {
@@ -77,9 +92,9 @@ public class FingerTransparentView extends View {
         int x = (int) event.getX();
         int y = (int) event.getY();
 
-        mTouchRect.left = x - 82; // TODO
-        mTouchRect.right = x + 82;
-        mTouchRect.top = y - 164;
+        mTouchRect.left = x - mFingerRadius / 2;
+        mTouchRect.right = x + mFingerRadius / 2;
+        mTouchRect.top = y - mFingerRadius;
         mTouchRect.bottom = y;
 
         if (action == MotionEvent.ACTION_UP) {
@@ -110,5 +125,20 @@ public class FingerTransparentView extends View {
         mWidth = w;
         mHeight = h;
         init();
+    }
+
+    private static Bitmap scale(Bitmap bitmap, float s) {
+        Matrix matrix = new Matrix();
+        matrix.postScale(s, s);
+        Bitmap resizeBmp = Bitmap.createBitmap(
+                bitmap,
+                0,
+                0,
+                bitmap.getWidth(),
+                bitmap.getHeight(),
+                matrix,
+                true
+        );
+        return resizeBmp;
     }
 }
