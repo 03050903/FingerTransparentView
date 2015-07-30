@@ -27,6 +27,7 @@ public class FingerTransparentView extends View {
     private int mWidth;
     private int mHeight;
     private Rect mRect, mTouchRect;
+
     private int mFingerRadius;
 
     public FingerTransparentView(Context context) {
@@ -140,4 +141,13 @@ public class FingerTransparentView extends View {
                 true
         );
     }
+
+    public int getFingerRadius() {
+        return mFingerRadius;
+    }
+
+    public void setFingerRadius(int fingerRadius) {
+        mFingerRadius = fingerRadius;
+    }
+
 }
