@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
@@ -20,7 +19,6 @@ import android.view.View;
  */
 public class FingerTransparentView extends View {
 
-    private static final int PNG_RADIUS = 164;
     private Bitmap mBaseLayer, mFingerLayer;
     private Paint mBasePaint, mTouchPaint;
     private int mBaseColor;
@@ -68,9 +66,7 @@ public class FingerTransparentView extends View {
 
     private void initFingerLayer() {
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.finger);
-        //mFingerLayer = scaleBitmap(bitmap, mFingerRadius * 1.0f / PNG_RADIUS);
-        //new
-        mFingerLayer = scaleBitmapFormFingerLayer(bitmap, mFingerRadius);
+        mFingerLayer = scaleBitmap(bitmap, mFingerRadius);
     }
 
     private void initBaseLayer() {
@@ -130,20 +126,6 @@ public class FingerTransparentView extends View {
         init();
     }
 
-    private Bitmap scaleBitmap(Bitmap bitmap, float s) {
-        Matrix matrix = new Matrix();
-        matrix.postScale(s, s);
-        return Bitmap.createBitmap(
-                bitmap,
-                0,
-                0,
-                bitmap.getWidth(),
-                bitmap.getHeight(),
-                matrix,
-                true
-        );
-    }
-
     /**
      * 等比缩放
      * add by Malin
@@ -152,9 +134,8 @@ public class FingerTransparentView extends View {
      * @param with:手指缩放的半径
      * @return
      */
-    private Bitmap scaleBitmapFormFingerLayer(Bitmap bitmap, int with) {
-        Bitmap btm = Bitmap.createScaledBitmap(bitmap, with, with * bitmap.getWidth() / bitmap.getHeight(), true);
-        return btm;
+    private Bitmap scaleBitmap(Bitmap bitmap, int with) {
+        return Bitmap.createScaledBitmap(bitmap, with, with * bitmap.getWidth() / bitmap.getHeight(), true);
     }
 
     public int getFingerRadius() {

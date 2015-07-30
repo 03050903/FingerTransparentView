@@ -16,7 +16,7 @@
     <me.drakeet.fingertransparentview.FingerTransparentView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        drakeet:transparent_radius="128dp"/>
+        drakeet:transparent_radius="228dp"/>
 
     <!--default drakeet:transparent_radius="82dp"/>-->
 
