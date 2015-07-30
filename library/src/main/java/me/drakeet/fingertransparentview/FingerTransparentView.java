@@ -68,7 +68,9 @@ public class FingerTransparentView extends View {
 
     private void initFingerLayer() {
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.finger);
-        mFingerLayer = scaleBitmap(bitmap, mFingerRadius * 1.0f / PNG_RADIUS);
+        //mFingerLayer = scaleBitmap(bitmap, mFingerRadius * 1.0f / PNG_RADIUS);
+        //new
+        mFingerLayer = scaleBitmapFormFingerLayer(bitmap, mFingerRadius);
     }
 
     private void initBaseLayer() {
@@ -140,6 +142,19 @@ public class FingerTransparentView extends View {
                 matrix,
                 true
         );
+    }
+
+    /**
+     * 等比缩放
+     * add by Malin
+     *
+     * @param bitmap:资源图片
+     * @param with:手指缩放的半径
+     * @return
+     */
+    private Bitmap scaleBitmapFormFingerLayer(Bitmap bitmap, int with) {
+        Bitmap btm = Bitmap.createScaledBitmap(bitmap, with, with * bitmap.getWidth() / bitmap.getHeight(), true);
+        return btm;
     }
 
     public int getFingerRadius() {
