@@ -1,4 +1,4 @@
-package me.drakeet.fingertransparentview;
+package me.drakeet.sample;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

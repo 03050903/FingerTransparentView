@@ -1,4 +1,4 @@
-package me.drakeet.fingertransparentview;
+package me.drakeet.sample;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
