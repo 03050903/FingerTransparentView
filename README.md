@@ -4,6 +4,20 @@ FingerTransparentView
 
 (原来叫 FingerPNG)
 
+```groovy
+dependencies {
+    compile 'me.drakeet.fingertransparentview:fingertransparentview:1.0.1'
+}
+```
+
+```xml
+<dependency>
+    <groupId>me.drakeet.fingertransparentview</groupId>
+    <artifactId>fingertransparentview</artifactId>
+    <version>1.0.1</version>
+</dependency>
+```
+
 ```xml
 <me.drakeet.fingertransparentview.FingerTransparentView
     android:layout_width="match_parent"
