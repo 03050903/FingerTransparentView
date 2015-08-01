@@ -4,11 +4,15 @@ FingerTransparentView
 
 (原来叫 FingerPNG)
 
+1.
+
 ```groovy
 dependencies {
     compile 'me.drakeet.fingertransparentview:fingertransparentview:1.0.1'
 }
 ```
+
+or
 
 ```xml
 <dependency>
@@ -17,6 +21,8 @@ dependencies {
     <version>1.0.1</version>
 </dependency>
 ```
+
+2.
 
 ```xml
 <me.drakeet.fingertransparentview.FingerTransparentView
