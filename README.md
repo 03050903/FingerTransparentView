@@ -1,6 +1,6 @@
 FingerTransparentView
 
-<img src="/art/s1.jpg" alt="screenshot" title="screenshot" width="270" height="486" />
+<img src="/art/s1.gif" alt="screenshot" title="screenshot" width="270" height="486" />
 
 (原来叫 FingerPNG)
 
@@ -33,6 +33,8 @@ or
 <!--default: drakeet:transparent_radius="82dp"/>-->
 
 ```
+
+More about this library -> My blog: http://drakeet.me/fingertransparentview
 
 Demo apk: https://github.com/drakeet/FingerTransparentView/raw/master/library-demo.apk
 
