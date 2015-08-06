@@ -174,19 +174,6 @@ public class FingerTransparentView extends View {
         return scaleBitmap(bitmap, (int)(with * mFingerRadius));
     }
 
-    /**
-     * 获得两点的距离
-     *
-     * @param event
-     *
-     * @return
-     */
-    private double spacing(MotionEvent event) {
-        float x = event.getX(0) - event.getX(1);
-        float y = event.getY(0) - event.getY(1);
-        return Math.sqrt(x * x + y * y);
-    }
-
     public int getFingerRadius() {
         return mFingerRadius;
     }
