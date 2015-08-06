@@ -9,12 +9,8 @@ import android.view.View;
 public abstract class OnZoomTouchListener implements View.OnTouchListener {
 
     private int mTouchNum = 0;
-    float mOldDist;
-    float mScaleSize = 0;
-
-    public OnZoomTouchListener(float initScaleSize) {
-        mScaleSize = initScaleSize;
-    }
+    private float mOldDist;
+    private float REDRAW_DIS = 0.05f;
 
     public abstract void onZoom(float scale);
 
@@ -38,10 +34,10 @@ public abstract class OnZoomTouchListener implements View.OnTouchListener {
             case MotionEvent.ACTION_MOVE:
                 if (mTouchNum >= 2) {
                     float newDist = (float) spacing(event);
-                    if (newDist > mOldDist + 0.1f) {
+                    if (newDist > mOldDist + REDRAW_DIS) {
                         onZoom(newDist / mOldDist);
                     }
-                    if (newDist < mOldDist - 0.1f) {
+                    if (newDist < mOldDist - REDRAW_DIS) {
                         onZoom(newDist / mOldDist);
                     }
                 }

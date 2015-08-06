@@ -65,7 +65,7 @@ public class FingerTransparentView extends View {
 
         setWillNotDraw(false);
 
-        mZoomTouchListener = new OnZoomTouchListener(getScale()) {
+        mZoomTouchListener = new OnZoomTouchListener() {
             @Override
             public void onZoom(float scale) {
                 setScale(scale);
@@ -113,7 +113,7 @@ public class FingerTransparentView extends View {
         int y = (int) event.getY();
 
         mShowBelowViewRect.left = (int) (x - mFingerRadius * mScale / 2);
-        mShowBelowViewRect.right = (int) (x + mFingerRadius * mScale / 2);
+        mShowBelowViewRect.right = (int) (x + mFingerRadius * mScale / 2 + 1) ;//加一防止小数点被砍掉出现漏缝
         mShowBelowViewRect.top = (int) (y - mFingerRadius * mScale);
         mShowBelowViewRect.bottom = y;
 
