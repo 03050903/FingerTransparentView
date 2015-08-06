@@ -29,6 +29,7 @@ public class FingerTransparentView extends View {
     private int mFingerRadius;
     private float mScale = 1.0f;
     private OnZoomTouchListener mZoomTouchListener;
+    private boolean mCanScale = true;
 
     public FingerTransparentView(Context context) {
         super(context);
@@ -72,7 +73,7 @@ public class FingerTransparentView extends View {
             }
         };
 
-        this.setOnTouchListener(mZoomTouchListener);
+        if (mCanScale) this.setOnTouchListener(mZoomTouchListener);
     }
 
     private void initFingerLayer() {
@@ -99,8 +100,11 @@ public class FingerTransparentView extends View {
     public boolean dispatchTouchEvent(MotionEvent event) {
         super.dispatchTouchEvent(event);
 
-        mZoomTouchListener.onTouch(this, event);
-        //onTouchEvent(event);
+        if (mCanScale) {
+            mZoomTouchListener.onTouch(this, event);
+        } else {
+            onTouchEvent(event);
+        }
 
         return true;
     }
@@ -199,6 +203,15 @@ public class FingerTransparentView extends View {
         mScale = scale;
         initFingerLayer();
         invalidate();
+    }
+
+    public boolean getCanScale() {
+        return mCanScale;
+    }
+
+    public void setCanScale(boolean canScale) {
+        mCanScale = canScale;
+        if (mCanScale) this.setOnTouchListener(mZoomTouchListener);
     }
 
 }
