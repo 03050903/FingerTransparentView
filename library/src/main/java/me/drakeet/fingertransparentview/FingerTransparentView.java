@@ -24,9 +24,11 @@ public class FingerTransparentView extends View {
     private int mBaseColor;
     private int mWidth;
     private int mHeight;
-    private Rect mRect, mTouchRect;
+    private Rect mRect, mShowBelowViewRect;
 
     private int mFingerRadius;
+    private float mScale = 1.0f;
+    private OnZoomTouchListener mZoomTouchListener;
 
     public FingerTransparentView(Context context) {
         super(context);
@@ -47,7 +49,7 @@ public class FingerTransparentView extends View {
     }
 
     private void init() {
-        mTouchRect = new Rect();
+        mShowBelowViewRect = new Rect();
         mBaseColor = Color.WHITE; // TODO
 
         mBasePaint = new Paint();
@@ -62,11 +64,20 @@ public class FingerTransparentView extends View {
         initFingerLayer();
 
         setWillNotDraw(false);
+
+        mZoomTouchListener = new OnZoomTouchListener(getScale()) {
+            @Override
+            public void onZoom(float scale) {
+                setScale(scale);
+            }
+        };
+
+        this.setOnTouchListener(mZoomTouchListener);
     }
 
     private void initFingerLayer() {
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.finger);
-        mFingerLayer = scaleBitmap(bitmap, mFingerRadius);
+        mFingerLayer = scaleBitmap(bitmap, mScale);
     }
 
     private void initBaseLayer() {
@@ -84,30 +95,41 @@ public class FingerTransparentView extends View {
         canvas.drawRect(mRect, mBasePaint);
     }
 
+    @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         super.dispatchTouchEvent(event);
 
+        mZoomTouchListener.onTouch(this, event);
+        //onTouchEvent(event);
+
+        return true;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
         int action = event.getAction();
+
         int x = (int) event.getX();
         int y = (int) event.getY();
 
-        mTouchRect.left = x - mFingerRadius / 2;
-        mTouchRect.right = x + mFingerRadius / 2;
-        mTouchRect.top = y - mFingerRadius;
-        mTouchRect.bottom = y;
+        mShowBelowViewRect.left = (int) (x - mFingerRadius * mScale / 2);
+        mShowBelowViewRect.right = (int) (x + mFingerRadius * mScale / 2);
+        mShowBelowViewRect.top = (int) (y - mFingerRadius * mScale);
+        mShowBelowViewRect.bottom = y;
 
         if (action == MotionEvent.ACTION_UP) {
             resetBaseLayer();
-        } else {
+        } else if (action != MotionEvent.ACTION_POINTER_DOWN) {
             Canvas canvas = new Canvas();
             canvas.setBitmap(mBaseLayer);
             resetBaseLayer();
             mTouchPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_OUT));
-            canvas.drawBitmap(mFingerLayer, mTouchRect.left, mTouchRect.top, mTouchPaint);
+            canvas.drawBitmap(mFingerLayer, mShowBelowViewRect.left, mShowBelowViewRect.top, mTouchPaint);
             mTouchPaint.setXfermode(null);
             canvas.save();
         }
         invalidate();
+
         return true;
     }
 
@@ -115,7 +137,7 @@ public class FingerTransparentView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         canvas.drawBitmap(mBaseLayer, null, mRect, null);
-        canvas.drawBitmap(mFingerLayer, null, mTouchRect, null);
+        canvas.drawBitmap(mFingerLayer, null, mShowBelowViewRect, null);
     }
 
     @Override
@@ -132,10 +154,33 @@ public class FingerTransparentView extends View {
      *
      * @param bitmap:资源图片
      * @param with:手指缩放的半径
+     *
      * @return
      */
     private Bitmap scaleBitmap(Bitmap bitmap, int with) {
-        return Bitmap.createScaledBitmap(bitmap, with, with * bitmap.getWidth() / bitmap.getHeight(), true);
+        return Bitmap.createScaledBitmap(
+                bitmap,
+                with,
+                with * bitmap.getWidth() / bitmap.getHeight(),
+                true
+        );
+    }
+
+    private Bitmap scaleBitmap(Bitmap bitmap, float with) {
+        return scaleBitmap(bitmap, (int)(with * mFingerRadius));
+    }
+
+    /**
+     * 获得两点的距离
+     *
+     * @param event
+     *
+     * @return
+     */
+    private double spacing(MotionEvent event) {
+        float x = event.getX(0) - event.getX(1);
+        float y = event.getY(0) - event.getY(1);
+        return Math.sqrt(x * x + y * y);
     }
 
     public int getFingerRadius() {
@@ -144,6 +189,16 @@ public class FingerTransparentView extends View {
 
     public void setFingerRadius(int fingerRadius) {
         mFingerRadius = fingerRadius;
+    }
+
+    public float getScale() {
+        return mScale;
+    }
+
+    public void setScale(float scale) {
+        mScale = scale;
+        initFingerLayer();
+        invalidate();
     }
 
 }
