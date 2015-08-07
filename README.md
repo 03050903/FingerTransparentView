@@ -8,7 +8,7 @@ FingerTransparentView
 
 ```groovy
 dependencies {
-    compile 'me.drakeet.fingertransparentview:fingertransparentview:1.0.1'
+    compile 'me.drakeet.fingertransparentview:fingertransparentview:1.0.4'
 }
 ```
 
@@ -18,7 +18,7 @@ or
 <dependency>
     <groupId>me.drakeet.fingertransparentview</groupId>
     <artifactId>fingertransparentview</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.4</version>
 </dependency>
 ```
 
