@@ -132,6 +132,7 @@ public class FingerTransparentView extends View {
                 break;
             case MotionEvent.ACTION_DOWN:
                 mXfermode =  new PorterDuffXfermode(PorterDuff.Mode.SRC_OUT);
+                // ↓↓↓
             default:
                 Canvas canvas = new Canvas();
                 canvas.setBitmap(mBaseLayer);
