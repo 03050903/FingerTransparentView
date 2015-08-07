@@ -2,8 +2,6 @@ FingerTransparentView
 
 <img src="/art/s1.gif" alt="screenshot" title="screenshot" width="270" height="486" />
 
-(原来叫 FingerPNG)
-
 1.
 
 ```groovy

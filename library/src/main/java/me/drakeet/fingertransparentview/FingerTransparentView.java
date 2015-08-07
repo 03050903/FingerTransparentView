@@ -29,7 +29,7 @@ public class FingerTransparentView extends View {
 
     private int mFingerRadius;
     private float mScale = 1.0f;
-    private OnZoomTouchListener mZoomTouchListener;
+    private OnScaleTouchListener mZoomTouchListener;
     private boolean mCanScale = true;
     private Xfermode mXfermode;
 
@@ -68,9 +68,9 @@ public class FingerTransparentView extends View {
 
         setWillNotDraw(false);
 
-        mZoomTouchListener = new OnZoomTouchListener() {
+        mZoomTouchListener = new OnScaleTouchListener() {
             @Override
-            public void onZoom(float scale) {
+            public void onScale(float scale) {
                 setScale(scale);
             }
         };
