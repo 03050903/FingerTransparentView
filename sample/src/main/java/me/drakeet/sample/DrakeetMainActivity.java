@@ -1,7 +1,9 @@
 package me.drakeet.sample;
 
-import android.support.v7.app.AppCompatActivity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -28,7 +30,9 @@ public class DrakeetMainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_about) {
+            Uri uri = Uri.parse("http://drakeet.me");
+            startActivity(new Intent(Intent.ACTION_VIEW, uri));
             return true;
         }
 
