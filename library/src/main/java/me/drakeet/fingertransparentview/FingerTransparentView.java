@@ -10,6 +10,7 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
+import android.graphics.Xfermode;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -30,6 +31,7 @@ public class FingerTransparentView extends View {
     private float mScale = 1.0f;
     private OnZoomTouchListener mZoomTouchListener;
     private boolean mCanScale = true;
+    private Xfermode mXfermode;
 
     public FingerTransparentView(Context context) {
         super(context);
@@ -121,19 +123,26 @@ public class FingerTransparentView extends View {
         mShowBelowViewRect.top = (int) (y - mFingerRadius * mScale);
         mShowBelowViewRect.bottom = y;
 
-        if (action == MotionEvent.ACTION_UP) {
-            resetBaseLayer();
-        } else if (action != MotionEvent.ACTION_POINTER_DOWN) {
-            Canvas canvas = new Canvas();
-            canvas.setBitmap(mBaseLayer);
-            resetBaseLayer();
-            mTouchPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_OUT));
-            canvas.drawBitmap(mFingerLayer, mShowBelowViewRect.left, mShowBelowViewRect.top, mTouchPaint);
-            mTouchPaint.setXfermode(null);
-            canvas.save();
+        switch (action) {
+            case MotionEvent.ACTION_UP:
+                resetBaseLayer();
+                mXfermode = null;
+                break;
+            case MotionEvent.ACTION_POINTER_DOWN:
+                break;
+            case MotionEvent.ACTION_DOWN:
+                mXfermode =  new PorterDuffXfermode(PorterDuff.Mode.SRC_OUT);
+            default:
+                Canvas canvas = new Canvas();
+                canvas.setBitmap(mBaseLayer);
+                resetBaseLayer();
+                mTouchPaint.setXfermode(mXfermode);
+                canvas.drawBitmap(mFingerLayer, mShowBelowViewRect.left, mShowBelowViewRect.top, mTouchPaint);
+                mTouchPaint.setXfermode(null);
+                canvas.save();
         }
-        invalidate();
 
+        invalidate();
         return true;
     }
 
