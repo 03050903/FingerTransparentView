@@ -18,197 +18,186 @@ import android.view.View;
 /**
  * Created by drakeet on 7/29/15.
  */
-public class FingerTransparentView extends View {
+public class BreathingViewHelper {
 
-    private Bitmap mBaseLayer, mFingerLayer;
-    private Paint mBasePaint, mTouchPaint;
-    private int mBaseColor;
-    private int mWidth;
-    private int mHeight;
-    private Rect mRect, mShowBelowViewRect;
+    private static AsyncTask<Void, Integer, Void> mAsyncTask;
+    private static int mColor;
+    private static boolean mCancelled;
 
-    private int mFingerRadius;
-    private float mScale = 1.0f;
-    private OnScaleTouchListener mZoomTouchListener;
-    private boolean mCanScale = true;
-    private Xfermode mXfermode;
 
-    public FingerTransparentView(Context context) {
-        super(context);
-    }
+    public static void setBreathingBackgroundColor(final View view, final int color) {
+        Date firstDate = new Date();
+        final long firstTime = firstDate.getTime();
+        mAsyncTask = new AsyncTask<Void, Integer, Void>() {
+            int n = 1, t = 3000;
+            boolean increaseN;
 
-    public FingerTransparentView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.FingerTransparentView);
 
-        try {
-            mFingerRadius = a.getDimensionPixelSize(
-                    R.styleable.FingerTransparentView_transparent_radius,
-                    getResources().getDimensionPixelSize(R.dimen.finger_transparent_radius_default)
-            );
-        } finally {
-            a.recycle();
-        }
-    }
+            @Override protected Void doInBackground(Void... params) {
+                while (!isCancelled() || !mCancelled) {
+                    Date currentDate = new Date();
+                    long diffTime = currentDate.getTime() - firstTime;
+                    if (diffTime > n * t) {
+                        increaseN = true;
+                    }
+                    if (increaseN) {
+                        n++;
+                        increaseN = false;
+                    }
+                    double y = getBreathingY(diffTime, n, t);
+                    int alpha = (int) ((y * 0.618f + 0.382f) * 255);
+                    int resultColor = setAlphaComponent(color, alpha);
+                    mColor = resultColor;
+                    publishProgress(resultColor);
+                    try {
+                        Thread.sleep(38);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                return null;
+            }
 
-    private void init() {
-        mShowBelowViewRect = new Rect();
-        mBaseColor = Color.WHITE; // TODO
 
-        mBasePaint = new Paint();
-        mBasePaint.setAntiAlias(true);
-        mBasePaint.setStyle(Paint.Style.FILL);
-        mBasePaint.setColor(mBaseColor);
-
-        mTouchPaint = new Paint();
-        mTouchPaint.setAntiAlias(true);
-
-        initBaseLayer();
-        initFingerLayer();
-
-        setWillNotDraw(false);
-
-        mZoomTouchListener = new OnScaleTouchListener() {
-            @Override
-            public void onScale(float scale) {
-                setScale(scale);
+            @Override protected void onProgressUpdate(Integer... values) {
+                super.onProgressUpdate(values);
+                view.setBackgroundColor(values[0]);
             }
         };
-
-        if (mCanScale) this.setOnTouchListener(mZoomTouchListener);
+        executeAsyncTask(mAsyncTask);
     }
 
-    private void initFingerLayer() {
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.finger);
-        mFingerLayer = scaleBitmap(bitmap, mScale);
+
+    public static void stopBreathingBackgroundColor(View view) {
+        if (mAsyncTask != null) { BreathingViewHelper.mAsyncTask.cancel(true); }
+        else { mCancelled = true; }
+        smoothToOrigin(view);
     }
 
-    private void initBaseLayer() {
-        mBaseLayer = Bitmap.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(mBaseLayer);
 
-        mRect = new Rect(0, 0, mWidth, mHeight);
-        canvas.drawRect(mRect, mBasePaint);
-    }
-
-    private void resetBaseLayer() {
-        Canvas canvas = new Canvas(mBaseLayer);
-
-        mRect = new Rect(0, 0, mWidth, mHeight);
-        canvas.drawRect(mRect, mBasePaint);
-    }
-
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
-        super.dispatchTouchEvent(event);
-
-        if (mCanScale) {
-            mZoomTouchListener.onTouch(this, event);
-        } else {
-            onTouchEvent(event);
+    @SafeVarargs private static <Params, Progress, Result> void executeAsyncTask(
+            AsyncTask<Params, Progress, Result> task, Params... params) {
+        if (Build.VERSION.SDK_INT >= 11) {
+            task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
         }
-
-        return true;
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        int action = event.getAction();
-
-        int x = (int) event.getX();
-        int y = (int) event.getY();
-
-        mShowBelowViewRect.left = (int) (x - mFingerRadius * mScale / 2);
-        mShowBelowViewRect.right = (int) (x + mFingerRadius * mScale / 2 + 1) ;//加一防止小数点被砍掉出现漏缝
-        mShowBelowViewRect.top = (int) (y - mFingerRadius * mScale);
-        mShowBelowViewRect.bottom = y;
-
-        switch (action) {
-            case MotionEvent.ACTION_UP:
-                resetBaseLayer();
-                mXfermode = null;
-                break;
-            case MotionEvent.ACTION_POINTER_DOWN:
-                break;
-            case MotionEvent.ACTION_DOWN:
-                mXfermode =  new PorterDuffXfermode(PorterDuff.Mode.SRC_OUT);
-                // ↓↓↓
-            default:
-                Canvas canvas = new Canvas();
-                canvas.setBitmap(mBaseLayer);
-                resetBaseLayer();
-                mTouchPaint.setXfermode(mXfermode);
-                canvas.drawBitmap(mFingerLayer, mShowBelowViewRect.left, mShowBelowViewRect.top, mTouchPaint);
-                mTouchPaint.setXfermode(null);
-                canvas.save();
+        else {
+            task.execute(params);
         }
-
-        invalidate();
-        return true;
     }
 
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-        canvas.drawBitmap(mBaseLayer, null, mRect, null);
-        canvas.drawBitmap(mFingerLayer, null, mShowBelowViewRect, null);
+
+    private static double getBreathingY(long time, int n, int t) {
+        float k = 1.0f / 3;
+        float pi = 3.1415f;
+        float x = time / 1000.0f;
+        t = (int) (t / 1000.0f);
+        if (x >= ((n - 1) * t) && x < ((n - (1 - k)) * t)) {
+            double i = pi / (k * t) * ((x - (0.5f * k * t)) - (n - 1) * t);
+            return 0.5f * Math.sin(i) + 0.5f;
+        }
+        else if (x >= ((n - (1 - k)) * t) && x < n * t) {
+            double j = pi / ((1 - k) * t) * ((x - (0.5f * (3 - k) * t)) - (n - 1) * t);
+            double one = 0.5f * Math.sin(j) + 0.5f;
+            return one * one;
+        }
+        return 0;
     }
 
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-        mWidth = w;
-        mHeight = h;
-        init();
+
+    private static double getSinY(long time) {
+        return 0.5f * Math.sin(3 * time / 1000.0f) + 0.5;
     }
 
-    /**
-     * 等比缩放
-     * add by Malin
-     *
-     * @param bitmap:资源图片
-     * @param with:手指缩放的半径
-     *
-     * @return
-     */
-    private Bitmap scaleBitmap(Bitmap bitmap, int with) {
-        return Bitmap.createScaledBitmap(
-                bitmap,
-                with,
-                with * bitmap.getWidth() / bitmap.getHeight(),
-                true
-        );
+
+    private static void smoothToOrigin(final View view) {
+        Date firstDate = new Date();
+        final long firstTime = firstDate.getTime();
+        executeAsyncTask(new AsyncTask<Void, Integer, Void>() {
+                    int n = 1, t = 4000;
+                    boolean increaseN;
+
+
+                    @Override protected Void doInBackground(Void... params) {
+                        while (!isCancelled()) {
+                            Date currentDate = new Date();
+                            long diffTime = currentDate.getTime() - firstTime;
+
+                            double y = getCosY(diffTime);
+                            int alpha = (int) (y * 255);
+                            int resultColor = setAlphaComponent(mColor, alpha);
+                            if (alpha < 0.038 * 255) {
+                                publishProgress(0);
+                                this.cancel(true);
+                                return null;
+                            }
+                            publishProgress(resultColor, alpha);
+                            try {
+                                Thread.sleep(38);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        return null;
+                    }
+
+
+                    @Override protected void onProgressUpdate(Integer... values) {
+                        super.onProgressUpdate(values);
+                        view.setBackgroundColor(values[0]);
+                    }
+                });
     }
 
-    private Bitmap scaleBitmap(Bitmap bitmap, float with) {
-        return scaleBitmap(bitmap, (int)(with * mFingerRadius));
+
+    public static void smoothToTransparentFromColor(final View view, final int color) {
+        Date firstDate = new Date();
+        final long firstTime = firstDate.getTime();
+        executeAsyncTask(new AsyncTask<Void, Integer, Void>() {
+                    int n = 1, t = 4000;
+                    boolean increaseN;
+
+
+                    @Override protected Void doInBackground(Void... params) {
+                        while (!isCancelled()) {
+                            Date currentDate = new Date();
+                            long diffTime = currentDate.getTime() - firstTime;
+
+                            double y = getCosY(diffTime);
+                            int alpha = (int) (y * Color.alpha(color));
+                            int resultColor = setAlphaComponent(color, alpha);
+                            if (alpha < 0.038 * 255) {
+                                publishProgress(0);
+                                this.cancel(true);
+                                return null;
+                            }
+                            publishProgress(resultColor, alpha);
+                            try {
+                                Thread.sleep(38);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        return null;
+                    }
+
+
+                    @Override protected void onProgressUpdate(Integer... values) {
+                        super.onProgressUpdate(values);
+                        view.setBackgroundColor(values[0]);
+                    }
+                });
     }
 
-    public int getFingerRadius() {
-        return mFingerRadius;
+
+    private static double getCosY(long diffTime) {
+        return 0.5f * Math.cos(3 * diffTime / 1000.0f) + 0.5;
     }
 
-    public void setFingerRadius(int fingerRadius) {
-        mFingerRadius = fingerRadius;
-    }
 
-    public float getScale() {
-        return mScale;
+    public static int setAlphaComponent(int color, int alpha) {
+        if (alpha < 0 || alpha > 255) {
+            throw new IllegalArgumentException("alpha must be between 0 and 255.");
+        }
+        return (color & 0x00ffffff) | (alpha << 24);
     }
-
-    public void setScale(float scale) {
-        mScale = scale;
-        initFingerLayer();
-        invalidate();
-    }
-
-    public boolean getCanScale() {
-        return mCanScale;
-    }
-
-    public void setCanScale(boolean canScale) {
-        mCanScale = canScale;
-        if (mCanScale) this.setOnTouchListener(mZoomTouchListener);
-    }
-
 }
