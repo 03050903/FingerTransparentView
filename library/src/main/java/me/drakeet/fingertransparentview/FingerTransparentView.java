@@ -1,22 +1,16 @@
 package me.drakeet.fingertransparentview;
 
-import android.content.Context;
-import android.content.res.TypedArray;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
-import android.graphics.Xfermode;
-import android.util.AttributeSet;
-import android.view.MotionEvent;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.view.View;
 
+import java.util.Date;
+
 /**
- * Created by drakeet on 7/29/15.
+ * https://github.com/drakeet/BreathingViewHelper
+ *
+ * Created by drakeet on 6/12/15.
  */
 public class BreathingViewHelper {
 
