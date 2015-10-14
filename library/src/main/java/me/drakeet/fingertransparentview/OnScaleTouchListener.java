@@ -12,10 +12,11 @@ public abstract class OnScaleTouchListener implements View.OnTouchListener {
     private float mOldDist;
     private float REDRAW_DIS = 0.05f;
 
+
     public abstract void onScale(float scale);
 
-    @Override
-    public boolean onTouch(View view, MotionEvent event) {
+
+    @Override public boolean onTouch(View view, MotionEvent event) {
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
                 mTouchNum = 1;
@@ -45,6 +46,7 @@ public abstract class OnScaleTouchListener implements View.OnTouchListener {
         }
         return view.onTouchEvent(event);
     }
+
 
     private double spacing(MotionEvent event) {
         float x = event.getX(0) - event.getX(1);

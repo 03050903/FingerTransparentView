@@ -76,8 +76,6 @@ public class FingerTransparentView extends View {
                 setScale(scale);
             }
         };
-
-        if (mCanScale) this.setOnTouchListener(mZoomTouchListener);
     }
 
 
